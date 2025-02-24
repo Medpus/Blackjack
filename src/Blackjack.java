@@ -37,9 +37,11 @@ public class Blackjack {
             checkGameState(g);
         }
     };
+
     private final JPanel buttonPanel = new JPanel();
     private final JButton hitButton = new JButton("Hit");
     private final JButton stayButton = new JButton("Stay");
+    private final JButton restartButton = new JButton("Restart");
 
     public Blackjack() {
         startGame();
@@ -58,14 +60,12 @@ public class Blackjack {
 
         hitButton.setFocusable(false);
         stayButton.setFocusable(false);
+        restartButton.setFocusable(false);
         buttonPanel.add(hitButton);
         buttonPanel.add(stayButton);
+        buttonPanel.add(restartButton);
         frame.add(buttonPanel, BorderLayout.SOUTH);
 
-        setupButtonActions();
-    }
-
-    private void setupButtonActions() {
         hitButton.addActionListener(e -> playerDrawCard());
 
         stayButton.addActionListener(e -> {
@@ -74,13 +74,22 @@ public class Blackjack {
             dealerDrawCards();
             gamePanel.repaint();
         });
+
+        restartButton.setEnabled(false);
+        restartButton.addActionListener(e -> {
+            startGame();          // Reset the game state
+            hitButton.setEnabled(true);
+            stayButton.setEnabled(true);
+            restartButton.setEnabled(false); // Disable restart until the next round
+            gamePanel.repaint();  // Refresh the UI to reflect the reset state
+        });
     }
 
     private void startGame() {
         buildDeck();
         shuffleDeck();
 
-        // Dealer starts with **one** card
+        // Dealer starts with one card
         dealerHand = new ArrayList<>();
         dealerSum = 0;
         dealerAceCount = 0;
@@ -196,6 +205,7 @@ public class Blackjack {
             playerSum = reducePlayerAce();
 
             String message = determineGameOutcome();
+            restartButton.setEnabled(true);
             g.setFont(new Font("Arial", Font.BOLD, 30));
             g.setColor(Color.WHITE);
             g.drawString(message, 220, 250);
